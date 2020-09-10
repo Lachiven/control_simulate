@@ -108,24 +108,24 @@ void TrajectoryAnalyzer::ToTrajectoryFrame(const double x, const double y,
                                            double *ptr_s, double *ptr_s_dot,
                                            double *ptr_d,
                                            double *ptr_d_dot) const {
-  double dx = x - ref_point.x();
-  double dy = y - ref_point.y();
+  double dx = x - ref_point.x();//dx 为车辆真实点坐标与轨迹跟踪点坐标在大地坐标系下 x 轴偏差
+  double dy = y - ref_point.y();//dy 为车辆真实点坐标与轨迹跟踪点坐标在大地坐标系下 y 轴偏差
 
-  double cos_ref_theta = std::cos(ref_point.theta());
-  double sin_ref_theta = std::sin(ref_point.theta());
+  double cos_ref_theta = std::cos(ref_point.theta());//cos_ref_theta 为轨迹跟踪点航向角的余弦值
+  double sin_ref_theta = std::sin(ref_point.theta());//sin_ref_theta 为其正弦值
 
   // the sin of diff angle between vector (cos_ref_theta, sin_ref_theta) and
   // (dx, dy)
-  double cross_rd_nd = (0910-question) * (0910-question) - (0910-question) * (0910-question);
+  double cross_rd_nd = (dy) * (sin_ref_theta) - (dx) * (cos_ref_theta);//0910-question////cross_rd_nd 表示在轨迹跟踪点坐标系下的横向偏差
   *ptr_d = cross_rd_nd;
 
   // the cos of diff angle between vector (cos_ref_theta, sin_ref_theta) and
   // (dx, dy)
-  double dot_rd_nd = (0910-question) * (0910-question) + (0910-question) * (0910-question);
+  double dot_rd_nd = (dy) * (cos_ref_theta) + (dx) * (sin_ref_theta);//0910-question //dot_rd_nd为纵向偏差
   *ptr_s = ref_point.s() + dot_rd_nd;
 
   double delta_theta = theta - ref_point.theta();
-  double cos_delta_theta = std::cos(delta_theta);
+  double cos_delta_theta = std::cos(delta_theta);//cos_ref_theta 为轨迹跟踪点航向角的余弦值
   double sin_delta_theta = std::sin(delta_theta);
 
   *ptr_d_dot = v * sin_delta_theta;
