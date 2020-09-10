@@ -203,23 +203,21 @@ Status LatController::Init(std::shared_ptr<DependencyInjector> injector,
   matrix_adc_ = Matrix::Zero(matrix_size, matrix_size);
   /*
   A matrix (Gear Drive)
-  [0.0, 1.0, 0.0, 0.0;
-   0.0, (-(c_f + c_r) / m) / v, (c_f + c_r) / m,
-   (l_r * c_r - l_f * c_f) / m / v;
-   0.0, 0.0, 0.0, 1.0;
-   0.0, ((lr * cr - lf * cf) / i_z) / v, (l_f * c_f - l_r * c_r) / i_z,
-   (-1.0 * (l_f^2 * c_f + l_r^2 * c_r) / i_z) / v;]
-  */
+  [0.0,                               1.0,                           0.0,                                            0.0;
+   0.0,            (-(c_f + c_r) / m) / v,               (c_f + c_r) / m,                (l_r * c_r - l_f * c_f) / m / v;
+   0.0,                               0.0,                           0.0,                                            1.0;
+   0.0,   ((lr * cr - lf * cf) / i_z) / v, (l_f * c_f - l_r * c_r) / i_z, (-1.0 * (l_f^2 * c_f + l_r^2 * c_r) / i_z) / v;]
+  */ //因车辆速度为变量，此处填写时不写入公式 注：720行统一除了V此处V未定义 故无v
   matrix_a_(0, 1) = 1;// 1 2
   matrix_a_(1, 2) = (cf_ + cr_) / mass_;// 2 3
   matrix_a_(2, 3) = 1;// 3 4
   matrix_a_(3, 2) =  (lf_ * cf_ - lr_ * cr_) / iz_;// 4 3
 
   matrix_a_coeff_ = Matrix::Zero(matrix_size, matrix_size);
-  matrix_a_coeff_(1, 1) = -(cf_ + cr_) / mass_; // 2 2
+  matrix_a_coeff_(1, 1) = (- (cf_ + cr_) / mass_); // 2 2
   matrix_a_coeff_(1, 3) = (lr_ * cr_ - lf_ * cf_) / mass_; // 2 4
   matrix_a_coeff_(3, 1) = (lr_ * cr_ - lf_ * cf_) / iz_; // 4 2
-  matrix_a_coeff_(3, 3) = -1.0 * (lf_ * lf_ * cf_ + lr_ * lr_ * cr_) / iz_; // 4 4
+  matrix_a_coeff_(3, 3) = (-1.0 * (lf_ * lf_ * cf_ + lr_ * lr_ * cr_) / iz_); // 4 4
 
   /*
   b = [0.0, c_f / m, 0.0, l_f * c_f / i_z]^T
@@ -482,6 +480,8 @@ Status LatController::ComputeControlCommand(
     matrix_q_updated_(2, 2) =
         matrix_q_(2, 2) * heading_err_interpolation_->Interpolate(
                               std::fabs(vehicle_state->linear_velocity()));
+    
+    
     common::math::SolveLQRProblem(matrix_adc_, matrix_bdc_, matrix_q_,
                                   matrix_r_, lqr_eps_, lqr_max_iteration_,
                                   &matrix_k_);
