@@ -201,6 +201,8 @@ Status LatController::Init(std::shared_ptr<DependencyInjector> injector,
   matrix_a_ = Matrix::Zero(basic_state_size_, basic_state_size_);
   matrix_ad_ = Matrix::Zero(basic_state_size_, basic_state_size_);
   matrix_adc_ = Matrix::Zero(matrix_size, matrix_size);
+  
+  
   /*
   A matrix (Gear Drive)
   [0.0,                               1.0,                           0.0,                                            0.0;
